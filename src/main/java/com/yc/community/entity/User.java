@@ -6,7 +6,7 @@ public class User {
 
     private int id;
     private String userName;
-    private String passWord;
+    private String password;
     private String salt;
     private String email;
     private int type;
@@ -20,7 +20,7 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", userName='" + userName + '\'' +
-                ", passWord='" + passWord + '\'' +
+                ", password='" + password + '\'' +
                 ", salt='" + salt + '\'' +
                 ", email='" + email + '\'' +
                 ", type=" + type +
@@ -47,12 +47,12 @@ public class User {
         this.userName = userName;
     }
 
-    public String getPassWord() {
-        return passWord;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPassWord(String passWord) {
-        this.passWord = passWord;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getSalt() {

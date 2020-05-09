@@ -4,15 +4,15 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yc.community.dao.UserMapper">
     <sql id="insertFields">
-        id,userName,password,salt,email,type,status,activation_Code,header_Url,create_Time
+        userName,password,salt,email,type,status,activation_Code,header_Url,create_Time
     </sql>
     <sql id="selectFields">
         id,userName,password,salt,email,type,status,activation_Code,header_Url,create_Time
     </sql>
 
-    <insert id="insertUser">
+    <insert id="insertUser" parameterType="com.yc.community.entity.User" keyProperty="id">
         insert into user(<include refid="insertFields"/>)
-        values (#{id},#{userName},#{passWord},#{salt},#{email},#{type},#{status},#{activationCode},#{headerUrl},#{createTime})
+        values (#{userName},#{password},#{salt},#{email},#{type},#{status},#{activationCode},#{headerUrl},#{createTime})
     </insert>
 
     <update id="updateStatus">
