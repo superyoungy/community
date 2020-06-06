@@ -43,6 +43,10 @@ public class UserService implements CommunityConstant {
         return userMapper.selectById(id);
     }
 
+    public User findUserByName(String userName) {
+        return userMapper.selectByName(userName);
+    }
+
     public Map<String, Object> register(User user) {
         Map<String, Object> map = new HashMap<>();
         //空值处理
@@ -112,12 +116,12 @@ public class UserService implements CommunityConstant {
 
         // 空处理
         if (StringUtils.isBlank(userName)) {
-           map.put("userNameMsg", "账号不能为空！") ;
-           return map;
+            map.put("userNameMsg", "账号不能为空！") ;
+            return map;
         }
         if (StringUtils.isBlank(password)) {
-           map.put("passwordMsg", "密码不能为空！") ;
-           return map;
+            map.put("passwordMsg", "密码不能为空！") ;
+            return map;
         }
 
         // 验证账号

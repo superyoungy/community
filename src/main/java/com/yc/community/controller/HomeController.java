@@ -8,6 +8,7 @@ import com.yc.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.ArrayList;
@@ -24,19 +25,24 @@ public class HomeController {
 
     @RequestMapping("/index")
     public String getIndexPage(Model model, Page page) {
-        page.setRows(discussPostService.selectDiscussPostRows(0));
+        page.setRows(discussPostService.findDiscussPostRows(0));
         page.setPath("/index");
 
-        List<DiscussPost> discussPosts = discussPostService.selectDiscussPosts(0, page.getOffset(), page.getLimit());
-        List<Map> list=new ArrayList<>();
-        for (DiscussPost discussPost:discussPosts) {
+        List<DiscussPost> discussPostList = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit());
+        List<Map> discussPosts=new ArrayList<>();
+        for (DiscussPost discussPost:discussPostList) {
             Map<String,Object> map = new HashMap<>();
             map.put("post",discussPost);
             User user = userService.findUserById(discussPost.getUserId());
             map.put("user",user);
-            list.add(map);
+            discussPosts.add(map);
         }
-        model.addAttribute("discussPosts",list);
+        model.addAttribute("discussPosts",discussPosts);
         return  "/index";
+    }
+
+    @GetMapping("/error")
+    public String getErrorPage() {
+        return "/error/500";
     }
 }

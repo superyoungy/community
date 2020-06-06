@@ -3,9 +3,11 @@ package com.yc.community.community;
 import com.yc.community.CommunityApplication;
 import com.yc.community.dao.DiscussPostMapper;
 import com.yc.community.dao.LoginTicketMapper;
+import com.yc.community.dao.MessageMapper;
 import com.yc.community.dao.UserMapper;
 import com.yc.community.entity.DiscussPost;
 import com.yc.community.entity.LoginTicket;
+import com.yc.community.entity.Message;
 import com.yc.community.entity.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 @RunWith(SpringRunner.class)
@@ -103,4 +106,41 @@ public class MapperTest {
         loginTicketMapper.updateStatus("397525be0f60488b92f1a081295a81b8", 0);
         System.out.println(loginTicketMapper.selectByTicket("397525be0f60488b92f1a081295a81b8").getStatus());
     }
+
+    @Autowired
+    private MessageMapper messageMapper;
+    @Test
+    public void testMessage() {
+        List<Message> messages = messageMapper.selectConversations(111, 0, 10);
+        for (Message message : messages) {
+            System.out.println(message);
+        }
+        int i = messageMapper.selectConversationCount(111);
+        System.out.println(i);
+        List<Message> messages1 = messageMapper.selectLetters("111_112", 0, 10);
+        for (Message message : messages1) {
+            System.out.println(message);
+        }
+        int i1 = messageMapper.selectLetterCount("111_112");
+        System.out.println(i1);
+        int i2 = messageMapper.selectLetterUnreadCount(112, "111_112");
+        System.out.println(i2);
+
+    }
+
+    @Test
+    public void insertMessage() {
+        Message message = new Message();
+        message.setContent("1111111111");
+        message.setFromId(111);
+        message.setToId(112);
+        message.setConversationId("111_112");
+        message.setCreateTime(new Date());
+        int i3 = messageMapper.insertMessage(message);
+        System.out.println(i3);
+
+        int i4 = messageMapper.updateStatus(Collections.singletonList(message.getId()), 1);
+        System.out.println(i4);
+    }
+
 }
