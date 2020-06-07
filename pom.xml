@@ -39,11 +39,14 @@
 			<version>3.9</version>
 		</dependency>
 
-		<dependency><!--验证码-->
-			<groupId>com.github.penggle</groupId>
-			<artifactId>kaptcha</artifactId>
-			<version>2.3.2</version>
-		</dependency>
+		<!--Random (rather than SecureRandom) function for generating CAPTCHA values,
+		 which makes it easier for remote attackers to bypass intended access restrictions via a brute-force approach.
+		 因次原来的jar包中的Random均改成了SecureRandom，重新打包。新的jar包放在resources/my-jar中，不再用maven管理-->
+<!--		<dependency>&lt;!&ndash;验证码&ndash;&gt;-->
+<!--			<groupId>com.github.penggle</groupId>-->
+<!--			<artifactId>kaptcha</artifactId>-->
+<!--			<version>2.3.2</version>-->
+<!--		</dependency>-->
 
 		<dependency>
 			<groupId>mysql</groupId>

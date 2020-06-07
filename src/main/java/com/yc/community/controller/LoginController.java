@@ -1,10 +1,10 @@
 package com.yc.community.controller;
 
-import com.google.code.kaptcha.Producer;
 import com.yc.community.dao.LoginTicketMapper;
 import com.yc.community.entity.User;
 import com.yc.community.service.UserService;
 import com.yc.community.util.CommunityConstant;
+import kaptcha.Producer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
