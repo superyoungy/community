@@ -4,12 +4,15 @@ import com.yc.community.dao.LoginTicketMapper;
 import com.yc.community.entity.User;
 import com.yc.community.service.UserService;
 import com.yc.community.util.CommunityConstant;
+import com.yc.community.util.CommunityUtil;
+import com.yc.community.util.RedisKeyUtil;
 import kaptcha.Producer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -25,19 +28,26 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 public class LoginController implements CommunityConstant {
     @Autowired
     private UserService userService;
 
-    @Value("${server.servlet.context-path}")
-    private String contextPath;
-
     @Autowired
     private Producer kaptchaProducer;
 
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
+
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
 
     @RequestMapping(path = "/register", method = RequestMethod.GET)
     public String getRegisterPage() {
@@ -82,9 +92,12 @@ public class LoginController implements CommunityConstant {
 
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public String login(String userName, String password, String code, boolean rememberme,
-                        Model model, HttpSession session, HttpServletResponse response) {
+                        Model model, HttpSession session, HttpServletResponse response,
+                        @CookieValue("kaptchaOwner") String kaptchaOwner) {
         //检查验证码
-        String kaptcha = (String) session.getAttribute("kaptcha");
+//        String kaptcha = (String) session.getAttribute("kaptcha");
+        String kaptchaKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);
+        String kaptcha  = (String) redisTemplate.opsForValue().get(kaptchaKey);
         if(StringUtils.isBlank(kaptcha) || StringUtils.isBlank(code) || !kaptcha.equalsIgnoreCase(code)) {
             model.addAttribute("codeMsg", "验证码不正确");
             return "/site/login";
@@ -109,7 +122,16 @@ public class LoginController implements CommunityConstant {
     public void getKaptcha(HttpServletResponse response, HttpSession session) {
         String text = kaptchaProducer.createText();
         BufferedImage image = kaptchaProducer.createImage(text);
-        session.setAttribute("kaptcha", text);
+//        session.setAttribute("kaptcha", text);
+        String kaptchaOwner = CommunityUtil.generateUUID();
+        Cookie cookie = new Cookie("kaptchaOwner", kaptchaOwner);
+        cookie.setMaxAge(60);
+        cookie.setPath(contextPath);
+        response.addCookie(cookie);
+        //验证码存入redis
+        String kaptchaKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);
+        redisTemplate.opsForValue().set(kaptchaKey, text, 60, TimeUnit.SECONDS);
+
         response.setContentType("image/png");
         try {
             OutputStream outputStream = response.getOutputStream();
@@ -119,8 +141,6 @@ public class LoginController implements CommunityConstant {
         }//sprringMVC会自动关闭流
     }
 
-    @Autowired
-    private LoginTicketMapper loginTicketMapper;
     @RequestMapping(path = "/logout", method = RequestMethod.GET)
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);

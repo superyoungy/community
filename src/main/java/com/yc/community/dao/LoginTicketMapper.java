@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 
 @Mapper
+@Deprecated
 public interface LoginTicketMapper {
     // 插入loginTicket
     @Options(useGeneratedKeys = true, keyProperty = "id")
