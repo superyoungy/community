@@ -2,6 +2,7 @@ package com.yc.community.config;
 
 import com.yc.community.controller.interceptor.LoginRequiredInterceptor;
 import com.yc.community.controller.interceptor.LoginTicketInterceptor;
+import com.yc.community.controller.interceptor.MessageUnreadCountInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -13,13 +14,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private LoginTicketInterceptor loginTicketInterceptor;
 
     @Autowired
-    private LoginRequiredInterceptor LoginRequiredInterceptor;
+    private LoginRequiredInterceptor loginRequiredInterceptor;
+
+    @Autowired
+    private MessageUnreadCountInterceptor messageUnreadCountInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginTicketInterceptor)
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
-        registry.addInterceptor(LoginRequiredInterceptor)
+        registry.addInterceptor(loginRequiredInterceptor)
+                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
+        registry.addInterceptor(messageUnreadCountInterceptor)
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
     }
 }

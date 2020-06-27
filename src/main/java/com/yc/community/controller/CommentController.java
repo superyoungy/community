@@ -1,7 +1,12 @@
 package com.yc.community.controller;
 
 import com.yc.community.entity.Comment;
+import com.yc.community.entity.DiscussPost;
+import com.yc.community.entity.Event;
+import com.yc.community.event.EventProducer;
 import com.yc.community.service.CommentService;
+import com.yc.community.service.DiscussPostService;
+import com.yc.community.util.CommunityConstant;
 import com.yc.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,12 +19,18 @@ import java.util.Date;
 
 @Controller
 @RequestMapping("/comment")
-public class CommentController {
+public class CommentController implements CommunityConstant {
     @Autowired
     private HostHolder hostHolder;
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private DiscussPostService discussPostService;
+
+    @Autowired
+    private EventProducer eventProducer;
 
     //添加评论
     @PostMapping("/add/{discussPostId}")
@@ -32,6 +43,22 @@ public class CommentController {
         comment.setUserId(hostHolder.getUser().getId());
 
         commentService.addComment(comment);
+
+        //系统发送通知
+        Event event = new Event()
+                .setTopic(TOPIC_COMMENT)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityTYpe(comment.getEntityType())
+                .setEntityId(comment.getEntityId())
+                .addData("postId", discussPostId);
+        if (comment.getEntityType() == ENTITY_TYPE_COMMENT) {
+            Comment commentById = commentService.findCommentById(comment.getEntityId());
+            event.setEntityUserId(commentById.getUserId());
+        } else if (comment.getEntityType() == ENTITY_TYPE_POST) {
+            DiscussPost discussPostById = discussPostService.findDiscussPostById(comment.getEntityId());
+            event.setEntityUserId(discussPostById.getUserId());
+        }
+        eventProducer.fireEvent(event);
 
         return "redirect:/discuss/detail/" + discussPostId;
     }

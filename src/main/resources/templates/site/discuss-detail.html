@@ -84,7 +84,7 @@
 							发布于 <b th:text="${#dates.format(post.createTime,'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b>
 							<ul class="d-inline float-right">
 								<li class="d-inline ml-2">
-									<a href="javascript:;" class="text-primary" th:onclick="|like(this, ${post.userId}, 1, ${post.id});|">
+									<a href="javascript:;" class="text-primary" th:onclick="|like(this, ${post.userId}, 1, ${post.id}, ${post.id});|">
 										<b th:text="${likeEntityStatus==1?'已赞':'赞'}">赞</b> <i th:text="${likeCountEntity}">11</i>
 									</a>
 								</li>
@@ -136,7 +136,7 @@
 								<span>发布于 <b th:text="${#dates.format(cvo.comment.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b></span>
 								<ul class="d-inline float-right">
 									<li class="d-inline ml-2">
-										<a href="javascript:;" class="text-primary" th:onclick="|like(this, ${cvo.comment.userId}, 2, ${cvo.comment.id});|">
+										<a href="javascript:;" class="text-primary" th:onclick="|like(this, ${cvo.comment.userId}, 2, ${cvo.comment.id}, ${post.id});|">
 											<b th:text="${cvo.likeEntityStatus==1?'已赞':'赞'}">赞</b>
 											(<i th:text="${cvo.likeCountEntity}">1</i>)
 										</a>
@@ -163,7 +163,7 @@
 										<span th:text="${#dates.format(rvo.reply.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</span>
 										<ul class="d-inline float-right">
 											<li class="d-inline ml-2">
-												<a href="javascript:;" class="text-primary" th:onclick="|like(this, ${rvo.reply.userId}, 2, ${rvo.reply.id});|">
+												<a href="javascript:;" class="text-primary" th:onclick="|like(this, ${rvo.reply.userId}, 2, ${rvo.reply.id}, ${post.id});|">
 													<b th:text="${rvo.likeEntityStatus==1?'已赞':'赞'}">赞</b>
 													(<i th:text="${rvo.likeCountEntity}">1</i>)
 												</a>

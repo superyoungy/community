@@ -1,8 +1,8 @@
-function like(btn, entityUserId, entityType, entityId) {
+function like(btn, entityUserId, entityType, entityId, postId) {
     $.ajax({
         type : "POST",
         url  : CONTEXT_PATH + "/like",
-        data : {"entityUserId" : entityUserId, "entityType" : entityType, "entityId" : entityId },
+        data : {"entityUserId" : entityUserId, "entityType" : entityType, "entityId" : entityId, "postId" : postId },
         dataType : "json",
         success : function(data) {
             if (data.code == 0) {

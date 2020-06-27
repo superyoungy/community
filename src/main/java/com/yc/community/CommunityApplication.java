@@ -1,13 +1,16 @@
 package com.yc.community;
 
+import com.yc.community.util.SpringUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
 @SpringBootApplication
 public class CommunityApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CommunityApplication.class, args);
+		ApplicationContext applicationContext = SpringApplication.run(CommunityApplication.class, args);
+		SpringUtil.setApplicationContext(applicationContext);
 	}
 
 }

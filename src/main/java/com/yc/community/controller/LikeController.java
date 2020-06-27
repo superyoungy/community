@@ -1,7 +1,10 @@
 package com.yc.community.controller;
 
+import com.yc.community.entity.Event;
 import com.yc.community.entity.User;
+import com.yc.community.event.EventProducer;
 import com.yc.community.service.LikeService;
+import com.yc.community.util.CommunityConstant;
 import com.yc.community.util.CommunityUtil;
 import com.yc.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,16 +16,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class LikeController {
+public class LikeController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
     @Autowired
     private HostHolder hostHolder;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @PostMapping("/like")
     @ResponseBody
-    public String like(int entityUserId, int entityType, int entityId) {
+    public String like(int entityUserId, int entityType, int entityId, int postId) {
         User user = hostHolder.getUser();
         if (user == null) {
             return CommunityUtil.getJSONString(1, "您还没有登录哦！");
@@ -35,6 +41,18 @@ public class LikeController {
         map.put("likeCountEntity", likeCountEntity);
         int likeEntityStatus = likeService.getLikeEntityStatus(user.getId(), entityType, entityId);
         map.put("likeEntityStatus", likeEntityStatus);
+
+        //系统发送通知
+        if (likeEntityStatus == 1) {
+            Event event = new Event()
+                    .setTopic(TOPIC_LIKE)
+                    .setUserId(hostHolder.getUser().getId())
+                    .setEntityTYpe(entityType)
+                    .setEntityId(entityId)
+                    .setEntityUserId(entityUserId)
+                    .addData("postId", postId);
+            eventProducer.fireEvent(event);
+        }
 
         return CommunityUtil.getJSONString(0, null, map);
     }

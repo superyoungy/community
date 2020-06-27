@@ -1,7 +1,9 @@
 package com.yc.community.controller;
 
+import com.yc.community.entity.Event;
 import com.yc.community.entity.Page;
 import com.yc.community.entity.User;
+import com.yc.community.event.EventProducer;
 import com.yc.community.service.FollowService;
 import com.yc.community.service.UserService;
 import com.yc.community.util.CommunityConstant;
@@ -29,12 +31,23 @@ public class FollowController implements CommunityConstant {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @RequestMapping("/follow")
     @ResponseBody
     public String follow(int entityType, int entityId) {
         User user = hostHolder.getUser();
         if (user != null) {
             followService.follow(user.getId(), entityType, entityId);
+            //系统发送通知
+            Event event = new Event()
+                    .setTopic(TOPIC_FOLLOW)
+                    .setEntityTYpe(entityType)
+                    .setEntityId(entityId)
+                    .setUserId(hostHolder.getUser().getId())
+                    .setEntityUserId(entityId);
+            eventProducer.fireEvent(event);
             return CommunityUtil.getJSONString(0, "关注成功！");
         } else {
             return CommunityUtil.getJSONString(1, "你还没有登录哦！");
