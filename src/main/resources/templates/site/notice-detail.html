@@ -96,9 +96,9 @@
 								</span>
 							</div>
 							<div class="toast-body" th:if="${map.topic.equals('follow')}">
-								<span>用户 <a th:href="@{|/user/profile/${map.user.id}|}">
-									<i th:utext="${map.user.userName}">nowcoder</i>
-								</a> 关注了你</span>
+								<span>用户<i th:utext="${map.user.userName}">nowcoder</i>关注了你
+									<a class="text-primary" th:href="@{|/user/profile/${map.user.id}|}" >点击查看</a> !
+								</span>
 							</div>
 						</div>
 					</li>

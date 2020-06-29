@@ -45,19 +45,30 @@ public class CommentController implements CommunityConstant {
         commentService.addComment(comment);
 
         //系统发送通知
-        Event event = new Event()
-                .setTopic(TOPIC_COMMENT)
-                .setUserId(hostHolder.getUser().getId())
-                .setEntityTYpe(comment.getEntityType())
-                .setEntityId(comment.getEntityId())
-                .addData("postId", discussPostId);
+        Event event = new Event();
         if (comment.getEntityType() == ENTITY_TYPE_COMMENT) {
             Comment commentById = commentService.findCommentById(comment.getEntityId());
+
+            if (commentById.getUserId() == hostHolder.getUser().getId()) {
+                return "redirect:/discuss/detail/" + discussPostId;
+            }
+
             event.setEntityUserId(commentById.getUserId());
         } else if (comment.getEntityType() == ENTITY_TYPE_POST) {
             DiscussPost discussPostById = discussPostService.findDiscussPostById(comment.getEntityId());
+
+            if (discussPostById.getUserId() == hostHolder.getUser().getId()) {
+                return "redirect:/discuss/detail/" + discussPostId;
+            }
+
             event.setEntityUserId(discussPostById.getUserId());
         }
+        event
+            .setTopic(TOPIC_COMMENT)
+            .setUserId(hostHolder.getUser().getId())
+            .setEntityTYpe(comment.getEntityType())
+            .setEntityId(comment.getEntityId())
+            .addData("postId", discussPostId);
         eventProducer.fireEvent(event);
 
         return "redirect:/discuss/detail/" + discussPostId;

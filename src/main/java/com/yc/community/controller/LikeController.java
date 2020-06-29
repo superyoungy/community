@@ -43,6 +43,9 @@ public class LikeController implements CommunityConstant {
         map.put("likeEntityStatus", likeEntityStatus);
 
         //系统发送通知
+        if (entityUserId == user.getId()) {
+            return CommunityUtil.getJSONString(0, null, map);
+        }
         if (likeEntityStatus == 1) {
             Event event = new Event()
                     .setTopic(TOPIC_LIKE)

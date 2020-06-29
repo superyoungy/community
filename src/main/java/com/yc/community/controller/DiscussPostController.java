@@ -4,10 +4,7 @@ import com.yc.community.entity.Comment;
 import com.yc.community.entity.DiscussPost;
 import com.yc.community.entity.Page;
 import com.yc.community.entity.User;
-import com.yc.community.service.CommentService;
-import com.yc.community.service.DiscussPostService;
-import com.yc.community.service.LikeService;
-import com.yc.community.service.UserService;
+import com.yc.community.service.*;
 import com.yc.community.util.CommunityConstant;
 import com.yc.community.util.CommunityUtil;
 import com.yc.community.util.HostHolder;
@@ -36,6 +33,9 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private ElasticsearchService elasticsearchService;
+
     @PostMapping("/add")
     @ResponseBody
     public String addDiscussPost(String title, String content) {
@@ -50,6 +50,8 @@ public class DiscussPostController implements CommunityConstant {
         discussPost.setUserId(user.getId());
         discussPost.setCreateTime(new Date());
         discussPostService.addDiscussPost(discussPost);
+
+        elasticsearchService.saveDiscussPost(discussPost);
 
         return CommunityUtil.getJSONString(0, "发布成功!");
     }
