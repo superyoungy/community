@@ -1,14 +1,14 @@
 package com.yc.community.controller;
 
-import com.yc.community.entity.Comment;
-import com.yc.community.entity.DiscussPost;
-import com.yc.community.entity.Page;
-import com.yc.community.entity.User;
+import com.yc.community.entity.*;
+import com.yc.community.event.EventProducer;
 import com.yc.community.service.*;
 import com.yc.community.util.CommunityConstant;
 import com.yc.community.util.CommunityUtil;
 import com.yc.community.util.HostHolder;
+import com.yc.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +36,12 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private ElasticsearchService elasticsearchService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @PostMapping("/add")
     @ResponseBody
     public String addDiscussPost(String title, String content) {
@@ -51,7 +57,18 @@ public class DiscussPostController implements CommunityConstant {
         discussPost.setCreateTime(new Date());
         discussPostService.addDiscussPost(discussPost);
 
-        elasticsearchService.saveDiscussPost(discussPost);
+//        elasticsearchService.saveDiscussPost(discussPost);
+        //触发事件
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(user.getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(discussPost.getId());
+        eventProducer.fireEvent(event);
+
+        // 计算帖子分数
+        String postScoreKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(postScoreKey, discussPost.getId());
 
         return CommunityUtil.getJSONString(0, "发布成功!");
     }
@@ -142,6 +159,52 @@ public class DiscussPostController implements CommunityConstant {
 
         model.addAttribute("comments", commentVoList);
 
-        return "/site/discuss-detail";
+        return "site/discuss-detail";
+    }
+
+    @PostMapping("/remove")
+    @ResponseBody
+    public String removePost(int id) {
+        discussPostService.removeDiscussPost(id);
+
+        Event event = new Event()
+                .setTopic(TOPiC_REMOVE)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0);
+    }
+
+    @PostMapping("/top")
+    @ResponseBody
+    public String setTop(int id) {
+        discussPostService.updateType(id, 1);
+
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0);
+    }
+
+    @PostMapping("/wonderful")
+    @ResponseBody
+    public String setWonderful(int id) {
+        discussPostService.updateStatus(id, 1);
+
+        //将需要更新分数的帖子id保存到redis
+        String postScoreKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(postScoreKey, id);
+
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+        return CommunityUtil.getJSONString(0);
     }
 }

@@ -20,7 +20,7 @@ public class MailTests {
 
     @Test
     public void mailTest() {
-        String to = "superyoungy@sina.com";
+        String to = "superyoungy@qq.com";
         String subject="SpringBootStarterMailTest";
         String content="Hello!";
         mailClient.sendMail(to,subject,content);

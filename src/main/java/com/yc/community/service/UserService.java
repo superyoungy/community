@@ -11,14 +11,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -114,7 +112,7 @@ public class UserService implements CommunityConstant {
         User user = userMapper.selectById(userId);
         if (user.getStatus() == 1) {
             return ACTIVATION_REPEAT;
-        } else if (!code.equals(user.getActivationCode())){
+        } else if (!code.equals(user.getActivationCode())) {
             return ACTIVATION_FAILURE;
         } else {
             userMapper.updateStatus(userId, 1);
@@ -127,11 +125,11 @@ public class UserService implements CommunityConstant {
 
         // 空处理
         if (StringUtils.isBlank(userName)) {
-            map.put("userNameMsg", "账号不能为空！") ;
+            map.put("userNameMsg", "账号不能为空！");
             return map;
         }
         if (StringUtils.isBlank(password)) {
-            map.put("passwordMsg", "密码不能为空！") ;
+            map.put("passwordMsg", "密码不能为空！");
             return map;
         }
 
@@ -194,11 +192,11 @@ public class UserService implements CommunityConstant {
             map.put("originPasswordMsg", "请输入原密码！");
             return map;
         }
-        if(newPassword == null) {
+        if (newPassword == null) {
             map.put("newPasswordMsg", "新密码不能为空！");
             return map;
         }
-        if(repetition == null) {
+        if (repetition == null) {
             map.put("passwordMsg", "请填写确认密码！");
             return map;
         }
@@ -215,7 +213,7 @@ public class UserService implements CommunityConstant {
             return map;
         }
 
-        if(originPassword.equals(newPassword)) {
+        if (originPassword.equals(newPassword)) {
             map.put("newPasswordMsg", "新密码不能和原密码相同！");
             return map;
         }
@@ -245,5 +243,24 @@ public class UserService implements CommunityConstant {
     private void clearCache(int userId) {
         String userKey = RedisKeyUtil.getUserKey(userId);
         redisTemplate.delete(userKey);
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthority(int userId) {
+        User user = this.findUserById(userId);
+        List<GrantedAuthority> list = new ArrayList<>();
+        list.add(new GrantedAuthority() {
+            @Override
+            public String getAuthority() {
+                switch (user.getType()) {
+                    case 1:
+                        return AUTHORITY_ADMIN;
+                    case 2:
+                        return AUTHORITY_MODERATOR;
+                    default:
+                        return AUTHORITY_USER;
+                }
+            }
+        });
+        return list;
     }
 }

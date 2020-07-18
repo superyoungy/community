@@ -26,6 +26,9 @@ public class MapperTest {
     @Autowired(required = false)
     private UserMapper userMapper;
 
+    @Autowired
+    private DiscussPostMapper discussPostMapper;
+
     @Test
     public void selectUser() {
         User user = userMapper.selectById(151);
@@ -65,12 +68,9 @@ public class MapperTest {
         System.out.println(rows);
     }
 
-    @Autowired(required = false)
-    DiscussPostMapper discussPostMapper;
-
     @Test
     public void selectDiscussPost() {
-        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPosts(0, 3, 10);
+        List<DiscussPost> discussPosts = discussPostMapper.selectDiscussPosts(0, 3, 10, 0);
         for (DiscussPost discussPost : discussPosts) {
             System.out.println(discussPost.getId());
         }
@@ -141,6 +141,15 @@ public class MapperTest {
 
         int i4 = messageMapper.updateStatus(Collections.singletonList(message.getId()), 1);
         System.out.println(i4);
+    }
+
+    @Test
+    public void testDiscussPost() {
+
+        List<DiscussPost> list = discussPostMapper.selectDiscussPosts(165, 0, 5, 1);
+        for (DiscussPost post : list) {
+            System.out.println(post);
+        }
     }
 
 }

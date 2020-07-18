@@ -29,11 +29,11 @@ public class Event {
         return this;
     }
 
-    public int getEntityTYpe() {
+    public int getEntityType() {
         return entityTYpe;
     }
 
-    public Event setEntityTYpe(int entityTYpe) {
+    public Event setEntityType(int entityTYpe) {
         this.entityTYpe = entityTYpe;
         return this;
     }

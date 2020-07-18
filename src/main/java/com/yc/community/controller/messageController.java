@@ -74,7 +74,7 @@ public class messageController implements CommunityConstant {
         int noticeUnreadCount = messageService.findNoticeUnreadCount(user.getId(), null);
         model.addAttribute("noticeUnreadCount", noticeUnreadCount);
 
-        return "/site/letter";
+        return "site/letter";
     }
 
     //会话详情
@@ -109,7 +109,7 @@ public class messageController implements CommunityConstant {
             messageService.readMessage(ids, 1);
         }
 
-        return "/site/letter-detail";
+        return "site/letter-detail";
     }
 
     public User getTarget(String conversationId) {
@@ -216,7 +216,7 @@ public class messageController implements CommunityConstant {
         int noticeUnreadCount = messageService.findNoticeUnreadCount(user.getId(), null);
         model.addAttribute("noticeUnreadCount", noticeUnreadCount);
 
-        return "/site/notice";
+        return "site/notice";
     }
 
     @LoginRequired
@@ -259,6 +259,6 @@ public class messageController implements CommunityConstant {
         }
         model.addAttribute("notices", messagesVo);
 
-        return "/site/notice-detail";
+        return "site/notice-detail";
     }
 }

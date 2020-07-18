@@ -43,7 +43,7 @@ public class FollowController implements CommunityConstant {
             //系统发送通知
             Event event = new Event()
                     .setTopic(TOPIC_FOLLOW)
-                    .setEntityTYpe(entityType)
+                    .setEntityType(entityType)
                     .setEntityId(entityId)
                     .setUserId(hostHolder.getUser().getId())
                     .setEntityUserId(entityId);
@@ -83,7 +83,7 @@ public class FollowController implements CommunityConstant {
         }
         model.addAttribute("followees", followees);
 
-        return "/site/followee";
+        return "site/followee";
     }
 
     @GetMapping("/follower/{userId}")
@@ -103,6 +103,6 @@ public class FollowController implements CommunityConstant {
         }
         model.addAttribute("followers", followers);
 
-        return "/site/follower";
+        return "site/follower";
     }
 }

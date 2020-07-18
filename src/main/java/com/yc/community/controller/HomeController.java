@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,12 +29,18 @@ public class HomeController implements CommunityConstant {
     @Autowired
     private LikeService likeService;
 
-    @RequestMapping("/index")
-    public String getIndexPage(Model model, Page page) {
+    @GetMapping("/")
+    public String getHomePage() {
+        return "forward:/index";
+    }
+
+    @GetMapping("/index")
+    public String getIndexPage(Model model, Page page,
+                               @RequestParam(name = "orderMode", defaultValue = "0") int orderMode) {
         page.setRows(discussPostService.findDiscussPostRows(0));
         page.setPath("/index");
 
-        List<DiscussPost> discussPostList = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit());
+        List<DiscussPost> discussPostList = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit(), orderMode);
         List<Map> discussPosts=new ArrayList<>();
         for (DiscussPost discussPost:discussPostList) {
             Map<String,Object> map = new HashMap<>();
@@ -48,11 +54,17 @@ public class HomeController implements CommunityConstant {
             discussPosts.add(map);
         }
         model.addAttribute("discussPosts",discussPosts);
-        return  "/index";
+        model.addAttribute("orderMode", orderMode);
+        return  "index";
     }
 
     @GetMapping("/error")
     public String getErrorPage() {
-        return "/error/500";
+        return "error/500";
+    }
+
+    @GetMapping("/denied")
+    public String getDeniedPage() {
+        return "error/404";
     }
 }

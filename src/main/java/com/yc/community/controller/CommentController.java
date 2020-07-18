@@ -8,7 +8,9 @@ import com.yc.community.service.CommentService;
 import com.yc.community.service.DiscussPostService;
 import com.yc.community.util.CommunityConstant;
 import com.yc.community.util.HostHolder;
+import com.yc.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,17 +34,24 @@ public class CommentController implements CommunityConstant {
     @Autowired
     private EventProducer eventProducer;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     //添加评论
     @PostMapping("/add/{discussPostId}")
-    public String addComment(@PathVariable String discussPostId, Comment comment, HttpServletResponse response) {
+    public String addComment(@PathVariable int discussPostId, Comment comment, HttpServletResponse response) {
         if (hostHolder.getUser() == null) {
-            return "/site/login";
+            return "site/login";
         }
         comment.setStatus(0);
         comment.setCreateTime(new Date());
         comment.setUserId(hostHolder.getUser().getId());
 
         commentService.addComment(comment);
+
+        //将该需要更新分数的帖子id保存到redis
+        String postScoreKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(postScoreKey, discussPostId);
 
         //系统发送通知
         Event event = new Event();
@@ -66,7 +75,7 @@ public class CommentController implements CommunityConstant {
         event
             .setTopic(TOPIC_COMMENT)
             .setUserId(hostHolder.getUser().getId())
-            .setEntityTYpe(comment.getEntityType())
+            .setEntityType(comment.getEntityType())
             .setEntityId(comment.getEntityId())
             .addData("postId", discussPostId);
         eventProducer.fireEvent(event);

@@ -54,7 +54,7 @@ public class UserController implements CommunityConstant {
     @LoginRequired
     @GetMapping("/setting")
     public String getSettingPage() {
-        return "/site/setting";
+        return "site/setting";
     }
 
     @LoginRequired
@@ -63,7 +63,7 @@ public class UserController implements CommunityConstant {
         //验证文件是否为空
         if (headerImg == null) {
             model.addAttribute("error", "未选择文件！");
-            return "/site/setting";
+            return "site/setting";
         }
 
         //验证文件名格式
@@ -71,7 +71,7 @@ public class UserController implements CommunityConstant {
         int i = originalFilename.lastIndexOf(".");
         if (i < 0 || i == originalFilename.length()-1) {
             model.addAttribute("error", "文件格式不正确！");
-            return "/site/setting";
+            return "site/setting";
         }
         String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
 
@@ -123,12 +123,12 @@ public class UserController implements CommunityConstant {
         if (map == null || map.isEmpty()) {
             model.addAttribute("msg", "密码修改成功！");
             model.addAttribute("target", "/index");
-            return "/site/operate-result";
+            return "site/operate-result";
         } else {
             model.addAttribute("originPasswordMsg", map.get("originPasswordMsg"));
             model.addAttribute("newPasswordMsg", map.get("newPasswordMsg"));
             model.addAttribute("passwordMsg", map.get("passwordMsg"));
-            return "/site/setting";
+            return "site/setting";
         }
     }
 
@@ -155,7 +155,7 @@ public class UserController implements CommunityConstant {
         int followStatus = followService.findFollowStatus(ENTITY_TYPE_USER, userId);
         model.addAttribute("followStatus", followStatus);
 
-        return "/site/profile";
+        return "site/profile";
 
     }
 

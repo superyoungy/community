@@ -33,7 +33,7 @@ public class SearchController implements CommunityConstant {
                 keyword, page.getCurrent() - 1, page.getLimit());
         if (discussPosts == null) {
             model.addAttribute("keyword", keyword);
-            return "/site/search";
+            return "site/search";
         }
 
         page.setPath("/search?keyword=" + keyword);
@@ -50,6 +50,6 @@ public class SearchController implements CommunityConstant {
         model.addAttribute("discussPostsVo", discussPostsVo);
         model.addAttribute("keyword", keyword);
 
-        return "/site/search";
+        return "site/search";
     }
 }
